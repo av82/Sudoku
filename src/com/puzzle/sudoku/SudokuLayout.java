@@ -5,6 +5,9 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
 import javax.swing.*;
 
 @SuppressWarnings("serial")
@@ -82,7 +85,7 @@ public class SudokuLayout extends JComponent implements ActionListener{
 		try {
 			inputMatrix = smgr.readSudokuFile(chosenFile);
 			if(inputMatrix==null){
-				this.lblError.setText(SudokuErrors.inv.getCodeValue());
+				this.lblError.setText(SudokuErrors.inv.getErrorDescription());
 			}
 			else {
 				showGame(inputMatrix);
@@ -110,6 +113,33 @@ public class SudokuLayout extends JComponent implements ActionListener{
 			}
 		}
 	}
+	public void writeSolution(int[][] outputMatrix){
+
+	      File file = new File("solution.csv");
+	      int fno=0;
+	      while(file.exists()){
+	    	  file=new File("solution"+fno+".csv");
+	    	  fno++;
+	      }
+	      try{
+	    	  file.createNewFile();
+	    	  FileWriter writer = new FileWriter(file); 
+	    	  for(int i=0;i<rows;i++){
+	    		  for (int j=0;j<cols;j++){
+	    			  writer.write(String.valueOf(outputMatrix[i][j])); 
+	    			  if(j!=cols-1) writer.write(",");
+	    		  }
+	    		writer.write("\n");
+	    	  }
+		      writer.flush();
+		      writer.close();
+		      this.lblError.setText(String.format("solution written to %s",file.getAbsolutePath()));
+	      }
+	      catch(IOException e){
+	    	  this.lblError.setText(SudokuErrors.IOERROR.getErrorDescription());
+	     }
+	      this.lblError.setVisible(true);
+	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
@@ -117,8 +147,9 @@ public class SudokuLayout extends JComponent implements ActionListener{
 			SudokuManager smgr= new SudokuManager();
 			if(smgr.getSolution(inputMatrix)){
 				showGame(smgr.getOutputMatrix());
+				writeSolution(smgr.getOutputMatrix());
 			}
-			else this.lblError.setText(SudokuErrors.NoSolution.getCodeValue());
+			else this.lblError.setText(SudokuErrors.NoSolution.getErrorDescription());
 		}
 		else if(e.getSource()==btnFiledialog){
 			handleFile();

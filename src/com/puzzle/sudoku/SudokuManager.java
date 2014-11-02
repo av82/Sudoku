@@ -139,7 +139,7 @@ public class SudokuManager {
 		String line="";
 		int[][] returnInputMatrix=null;
 		if (!(f.getName().endsWith(".csv")||f.getName().endsWith(".txt"))){
-			throw new Exception(SudokuErrors.erFileType.getCodeValue());
+			throw new Exception(SudokuErrors.erFileType.getErrorDescription());
 		}
 		try{
 			br=new BufferedReader(new FileReader(f));
