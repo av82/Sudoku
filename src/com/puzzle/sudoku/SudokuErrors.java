@@ -4,7 +4,11 @@ public enum SudokuErrors {
  inv("invalid input"),
  erFileType("ERROR: Only .csv/.txt files are allowed as inputs"),
  NoSolution("No Solution Found"),
- IOERROR("ERROR: An I/O error occured, please try again");
+ IOERROR("ERROR: An I/O error occured, please try again"),
+ InputRangeError("ERROR WHILE LOADING FROM INPUT FILE: Numbers in sudoku should be between 1-9 for filled cells\n and 0 for un-filled "),
+ NaN("ERROR: Not a number"),
+ fnf("ERROR: File not found"),
+ nsudoku("ERROR WHILE LOADING FROM INPUT FILE: Not a sudoku, numbers repeated in rows/columns or in square blocks");
 private final String value;
 private SudokuErrors(final String value){
 	this.value=value;

@@ -1,7 +1,10 @@
 package com.puzzle.sudoku;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.util.HashSet;
+import java.util.Set;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -16,14 +19,16 @@ public class SudokuLayout extends JComponent implements ActionListener{
 	private JLabel lblError=new JLabel();
 	private JButton btnFiledialog=new JButton("Load Input File");
 	private JButton btnSolve=new JButton("Find Solution");
+	private JButton btnClear=new JButton("Clear");
 	private final int  rows=9;
 	private final int  cols=9;
 	private JFileChooser chooser= new JFileChooser();
 	private int[][] inputMatrix;
-	
+	private Set<Cell> emptyCells;
 	
 	public SudokuLayout(){
 		setLayout();
+		emptyCells=new HashSet<Cell>();
 	}
 	/**
 	 * Sets the initial layout placing the sudoku grid, other operational buttons - file browser, solve command button
@@ -31,31 +36,35 @@ public class SudokuLayout extends JComponent implements ActionListener{
 	private void setLayout(){
 		this.cells= new JTextField[rows][cols];
 		JFrame jframe =new JFrame("Sudoku Puzzle");
-		GridLayout framelayout= new GridLayout(3,3);
-		jframe.setLayout(framelayout);
-		jframe.setPreferredSize(new Dimension(900,900));
-		JPanel cellPanel= new JPanel();
-		cellPanel.setLayout(new GridLayout(rows, cols));
+		JPanel sudokuPanel= new JPanel();
+		JPanel buttonPanel = new JPanel(new BorderLayout());
+		sudokuPanel.setLayout(new GridLayout(rows, cols));
+		sudokuPanel.setPreferredSize(new Dimension(200,200));
 		for(int i=0;i<cells.length;i++){
 			for(int j=0;j<cells[i].length;j++){
 				cells[i][j]=new JTextField();
 				cells[i][j].setHorizontalAlignment(SwingConstants.CENTER);
-				cellPanel.add(cells[i][j]);
+				sudokuPanel.add(cells[i][j]);
 			}
 		}
 		btnSolve.addActionListener(this);
 		btnSolve.setPreferredSize(new Dimension(50,50));
 		btnFiledialog.addActionListener(this);
 		btnFiledialog.setPreferredSize(new Dimension(50,50));
+		btnClear.addActionListener(this);
 		lblError.setVisible(false);
 		jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		jframe.add(new JLabel());
-		jframe.add(cellPanel);	
-		jframe.add(new JLabel());
-		jframe.add(lblError);
-		jframe.add(btnSolve);
+		jframe.add(sudokuPanel,"North");	
+		buttonPanel.add(lblError,"North");
+		buttonPanel.add(btnSolve,"Center");
 		btnSolve.setVisible(false);
-		jframe.add(btnFiledialog);
+		btnClear.setVisible(false);
+		buttonPanel.add(btnClear,"East");
+		buttonPanel.add(btnFiledialog,"South");
+		buttonPanel.setMaximumSize(new Dimension(200, 200));
+		jframe.add(buttonPanel,"South");
+		jframe.setSize(520,600);
+	    jframe.setMinimumSize(new Dimension(520,600));
 		jframe.pack();
 		jframe.setVisible(true);
 	}
@@ -88,7 +97,7 @@ public class SudokuLayout extends JComponent implements ActionListener{
 				this.lblError.setText(SudokuErrors.inv.getErrorDescription());
 			}
 			else {
-				showGame(inputMatrix);
+				showGame(inputMatrix,false);
 				btnSolve.setVisible(true);
 			}
 		} catch (Exception e1) {
@@ -100,13 +109,19 @@ public class SudokuLayout extends JComponent implements ActionListener{
 	/*
 	 * fill the cells on jframe (jlabel grid with values from inputMatrix)
 	 */
-	public void showGame(int[][] inputMatrix){
+	public void showGame(int[][] inputMatrix,boolean solved){
 		for(int i=0;i<rows;i++){
 			for(int j=0;j<cols;j++){
 				this.cells[i][j].setText(String.valueOf(inputMatrix[i][j]));
-				if(inputMatrix[i][j]==0){
+				if(inputMatrix[i][j]==0 && !solved){
 					this.cells[i][j].setText("");
 					this.cells[i][j].setBackground(Color.GRAY);
+					emptyCells.add(new Cell(i,j));
+				}
+				else if(solved){
+					if(emptyCells.contains(new Cell(i,j))){
+						this.cells[i][j].setBackground(Color.green);
+					}
 				}
 				this.cells[i][j].setEditable(false);
 				
@@ -133,26 +148,37 @@ public class SudokuLayout extends JComponent implements ActionListener{
 	    	  }
 		      writer.flush();
 		      writer.close();
-		      this.lblError.setText(String.format("solution written to %s",file.getAbsolutePath()));
+		      this.lblError.setText(String.format("solution written to \n%s",file.getAbsolutePath()));
 	      }
 	      catch(IOException e){
 	    	  this.lblError.setText(SudokuErrors.IOERROR.getErrorDescription());
 	     }
 	      this.lblError.setVisible(true);
 	}
+	public void markSolvedCells(){
+		
+	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
 		if(e.getSource()==btnSolve){
 			SudokuManager smgr= new SudokuManager();
 			if(smgr.getSolution(inputMatrix)){
-				showGame(smgr.getOutputMatrix());
+				showGame(smgr.getOutputMatrix(),true);
+				markSolvedCells();
 				writeSolution(smgr.getOutputMatrix());
 			}
 			else this.lblError.setText(SudokuErrors.NoSolution.getErrorDescription());
 		}
 		else if(e.getSource()==btnFiledialog){
 			handleFile();
+			btnClear.setVisible(true);
+		}
+		else if(e.getSource()==btnClear){
+			btnSolve.setVisible(false);
+			lblError.setText("");
+			lblError.setVisible(false);
+			clearBoard();
+			btnClear.setVisible(false);
 		}
 	}
 

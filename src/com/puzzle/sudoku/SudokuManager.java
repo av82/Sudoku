@@ -36,10 +36,10 @@ public class SudokuManager {
 		Cell curCell = getNextEmptyCell();
 		if (curCell == null)
 			return true;
-		int i = curCell.row, j = curCell.col;
+		int i = curCell.row, j = curCell.column;
 		for (int val = 1; val < 10; val++) {
 			//System.out.println(String.format("trying cell %d,%d for value %d",i,j,val)); //for logging check
-			if (isValid(i, j, val)) {
+			if (isValid(i, j, val,outputMatrix)) {
 				outputMatrix[i][j] = val;
 				if (solve())
 					return true;
@@ -78,9 +78,9 @@ public class SudokuManager {
 	 * @param val - current value that is being tried for @row
 	 * @return true when @row does not contain @val  else false
 	 */
-	 boolean isvalidRow(int row,int val){
+	 boolean isvalidRow(int row,int val,int[][] checkMatrix){
 		 for (int i=0;i<colSize;i++){
-			 if (outputMatrix[row][i]==val)
+			 if (checkMatrix[row][i]==val)
 				 return false;
 		 }
 		 return true;
@@ -91,9 +91,9 @@ public class SudokuManager {
 	  * @param val - current value that is being tried for @col
 	  * @return true when @col does not contain @val else false
 	  */
-	 boolean isvalidColumn(int col,int val){
+	 boolean isvalidColumn(int col,int val,int[][] checkMatrix){
 		 for (int i=0;i<rowSize;i++){
-			 if (outputMatrix[i][col]==val)
+			 if (checkMatrix[i][col]==val)
 				 return false;
 		 }
 		 return true;
@@ -105,10 +105,10 @@ public class SudokuManager {
 	  * @param val - value being checked
 	  * @return true when current SQUARE does not contain @val else false
 	  */
-	 boolean isvalidSquareBlock(int rowstart, int colstart,int val){
+	 boolean isvalidSquareBlock(int rowstart, int colstart,int val,int[][] checkMatrix){
 		 for (int r = 0; r < squareSize; r++)
 		        for (int c = 0; c < squareSize; c++)
-		            if (outputMatrix[r+rowstart][c+colstart] == val)
+		            if (checkMatrix[r+rowstart][c+colstart] == val)
 		                return false;
 		    return true;
 	 }
@@ -120,8 +120,8 @@ public class SudokuManager {
 	  * @param val value that is being tried to be filled at outputMatrix[@row][@col]
 	  * @return returns true when isvalidRow, isValidColumn, isvalidSquareBlock, all these helpers return true
 	  */
-	 boolean isValid(int row, int col, int val) {
-		if(isvalidRow(row, val)&&isvalidColumn(col, val)&&isvalidSquareBlock(row-row%squareSize, col-col%squareSize, val)){
+	 boolean isValid(int row, int col, int val,int[][] checkMatrix) {
+		if(isvalidRow(row, val,checkMatrix)&&isvalidColumn(col, val,checkMatrix)&&isvalidSquareBlock(row-row%squareSize, col-col%squareSize, val,checkMatrix)){
 			return true;
 		}
 		else return false;
@@ -147,18 +147,35 @@ public class SudokuManager {
 			int row=0;
 			while((line=br.readLine())!=null && row<rowSize){
 				String[] columns=line.split(splitter);
+				
 				for(int i=0;i<colSize;i++){
-					returnInputMatrix[row][i]=Integer.parseInt(columns[i]);
+					if(isInteger(columns[i])){
+						int num=Integer.parseInt(columns[i]);
+						if(num>=0&&num<10){
+							   if(num==0) returnInputMatrix[row][i]=num;
+							   else{
+								   if(isValid(row,i,num,returnInputMatrix)){
+									   returnInputMatrix[row][i]=num;
+								   }
+								   else throw new Exception(SudokuErrors.nsudoku.getErrorDescription());
+							   }
+							     	  
+						}
+						else{
+							throw new Exception(String.format(SudokuErrors.InputRangeError.getErrorDescription() +" at row %d, column %d", row,i));
+						}
+					}
+					else throw new Exception(String.format(SudokuErrors.NaN.getErrorDescription()+ " at row %d, column %d", row,i));
 				}
 				row++;
 			}
 			
 		}
 		catch(FileNotFoundException e){
-			throw new Exception("File Not Found");
+			throw new Exception(SudokuErrors.fnf.getErrorDescription());
 		}
 		catch(IOException e){
-			throw new Exception("I/O error");
+			throw new Exception(SudokuErrors.IOERROR.getErrorDescription());
 		}
 		finally{
 			if(br!=null){
@@ -166,14 +183,21 @@ public class SudokuManager {
 					br.close();
 				}
 				catch(IOException e){
-					throw new Exception("I/O Buffer error");
+					throw new Exception(SudokuErrors.IOERROR.getErrorDescription());
 				}
 			}
 		}
 		return returnInputMatrix;
 		
 	}
-
+	public  boolean isInteger(String s) {
+	    try { 
+	        Integer.parseInt(s); 
+	    } catch(NumberFormatException e) { 
+	        return false; 
+	    }
+	      return true;
+	}
 	public int[][] getOutputMatrix() {
 		return outputMatrix;
 	}
