@@ -190,7 +190,14 @@ public class SudokuLayout extends JComponent implements ActionListener{
 	}
 
 	public static void main(String[] args)
-	{
-		new SudokuLayout();
+	{ 
+		SwingUtilities.invokeLater(new Runnable() {
+			 public void run() {
+					SudokuLayout sudoku=new SudokuLayout();
+					sudoku.setVisible(true);
+				}
+		});
 	}
+
+       
 }
