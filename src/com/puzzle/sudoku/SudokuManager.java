@@ -162,10 +162,10 @@ public class SudokuManager {
 							     	  
 						}
 						else{
-							throw new Exception(String.format(SudokuErrors.InputRangeError.getErrorDescription() +" at row %d, column %d", row,i));
+							throw new Exception(String.format("ERROR WHILE LOADING FILE %s, "+SudokuErrors.InputRangeError.getErrorDescription() +" at row %d, column %d",f.getName(), row,i));
 						}
 					}
-					else throw new Exception(String.format(SudokuErrors.NaN.getErrorDescription()+ " at row %d, column %d", row,i));
+					else throw new Exception(String.format("ERROR WHILE LOADING FILE %s, "+SudokuErrors.NaN.getErrorDescription()+ " at row %d, column %d",f.getName(), row,i));
 				}
 				row++;
 			}
