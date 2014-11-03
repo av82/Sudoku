@@ -2,6 +2,7 @@ package com.puzzle.sudoku;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.util.HashSet;
 import java.util.Set;
@@ -49,13 +50,18 @@ public class SudokuLayout extends JComponent implements ActionListener{
 		}
 		btnSolve.addActionListener(this);
 		btnSolve.setPreferredSize(new Dimension(50,50));
+		btnSolve.setFont(new Font("Verdana", Font.BOLD, 12));
 		btnFiledialog.addActionListener(this);
+		btnFiledialog.setFont(new Font("Verdana", Font.BOLD, 12));
 		btnFiledialog.setPreferredSize(new Dimension(50,50));
 		btnClear.addActionListener(this);
+		btnClear.setFont(new Font("Verdana",Font.BOLD,12));
 		lblError.setVisible(false);
+		lblError.setMaximumSize(new Dimension(400,200));
+		lblError.setForeground(Color.BLUE);
 		jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		jframe.add(sudokuPanel,"North");	
-		buttonPanel.add(lblError,"North");
+		jframe.add(lblError,"Center");
 		buttonPanel.add(btnSolve,"Center");
 		btnSolve.setVisible(false);
 		btnClear.setVisible(false);
@@ -95,14 +101,14 @@ public class SudokuLayout extends JComponent implements ActionListener{
 		try {
 			inputMatrix = smgr.readSudokuFile(chosenFile);
 			if(inputMatrix==null){
-				this.lblError.setText(SudokuErrors.inv.getErrorDescription());
+				this.lblError.setText("<html><p>"+SudokuErrors.inv.getErrorDescription()+"</p></html>");
 			}
 			else {
 				showGame(inputMatrix,false);
 				btnSolve.setVisible(true);
 			}
 		} catch (Exception e1) {
-			this.lblError.setText(e1.getMessage());
+			this.lblError.setText("<html><p>"+e1.getMessage()+"</p></html>");
 			this.lblError.setVisible(true);
 			
 		}
@@ -149,10 +155,10 @@ public class SudokuLayout extends JComponent implements ActionListener{
 	    	  }
 		      writer.flush();
 		      writer.close();
-		      this.lblError.setText(String.format("solution written to \n%s",file.getAbsolutePath()));
+		      this.lblError.setText(String.format("<html><p>solution written to \n%s </p></html>",file.getAbsolutePath()));
 	      }
 	      catch(IOException e){
-	    	  this.lblError.setText(SudokuErrors.IOERROR.getErrorDescription());
+	    	  this.lblError.setText("<html><p>"+SudokuErrors.IOERROR.getErrorDescription()+"</p></html>");
 	     }
 	      this.lblError.setVisible(true);
 	}
@@ -168,7 +174,7 @@ public class SudokuLayout extends JComponent implements ActionListener{
 				markSolvedCells();
 				writeSolution(smgr.getOutputMatrix());
 			}
-			else this.lblError.setText(SudokuErrors.NoSolution.getErrorDescription());
+			else this.lblError.setText("<html><p>"+SudokuErrors.NoSolution.getErrorDescription()+"</p></html>");
 		}
 		else if(e.getSource()==btnFiledialog){
 			handleFile();
