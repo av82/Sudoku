@@ -39,7 +39,7 @@ public class SudokuLayout extends JComponent implements ActionListener{
 		JPanel sudokuPanel= new JPanel();
 		JPanel buttonPanel = new JPanel(new BorderLayout());
 		sudokuPanel.setLayout(new GridLayout(rows, cols));
-		sudokuPanel.setPreferredSize(new Dimension(200,200));
+		sudokuPanel.setPreferredSize(new Dimension(300,300));
 		for(int i=0;i<cells.length;i++){
 			for(int j=0;j<cells[i].length;j++){
 				cells[i][j]=new JTextField();
@@ -66,6 +66,7 @@ public class SudokuLayout extends JComponent implements ActionListener{
 		jframe.setSize(520,600);
 	    jframe.setMinimumSize(new Dimension(520,600));
 		jframe.pack();
+		jframe.setResizable(false);
 		jframe.setVisible(true);
 	}
 	/*
